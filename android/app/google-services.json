@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "365129109511",
+    "firebase_url": "https://demo1-527bc-default-rtdb.firebaseio.com",
+    "project_id": "demo1-527bc",
+    "storage_bucket": "demo1-527bc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365129109511:android:04cff6745eda8bc4299aa2",
+        "android_client_info": {
+          "package_name": "com.android.iunoob.bloodbank"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJtPr3NbIBgiiNjydMoFqvhJrYjhCfsko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365129109511:android:60c81cdbe2086405299aa2",
+        "android_client_info": {
+          "package_name": "com.example.meedo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJtPr3NbIBgiiNjydMoFqvhJrYjhCfsko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365129109511:android:70c3543a1b8dd269299aa2",
+        "android_client_info": {
+          "package_name": "com.example.new_flutter_firebase_webrtc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJtPr3NbIBgiiNjydMoFqvhJrYjhCfsko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365129109511:android:e9c465684265afac299aa2",
+        "android_client_info": {
+          "package_name": "com.example.new_mee_chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJtPr3NbIBgiiNjydMoFqvhJrYjhCfsko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365129109511:android:f63c21a95c275ca0299aa2",
+        "android_client_info": {
+          "package_name": "dev.flutterexplained.webrtc_tutorial"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJtPr3NbIBgiiNjydMoFqvhJrYjhCfsko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

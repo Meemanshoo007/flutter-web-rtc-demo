@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:new_flutter_firebase_webrtc/roomListDialog.dart';
 import 'package:new_flutter_firebase_webrtc/signaling.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
@@ -316,6 +317,13 @@ class _VideoCallPageState extends State<VideoCallPage> {
                     style: TextStyle(fontSize: 16, color: Colors.grey.shade400),
                     textAlign: TextAlign.center,
                   ),
+                  // Version
+                  const SizedBox(height: 12),
+                  Text(
+                    'Version 1.1.1',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    textAlign: TextAlign.center,
+                  ),
 
                   const SizedBox(height: 60),
 
@@ -414,6 +422,14 @@ class _VideoCallPageState extends State<VideoCallPage> {
                       end: Alignment.bottomRight,
                     ),
                     onPressed: () async {
+                      // showDialog(
+                      //   context: context,
+                      //   builder: (context) => RoomListDialog(
+                      //     onRoomSelected: (roomId) async {
+                      //       _joinRoom(roomId);
+                      //     },
+                      //   ),
+                      // );
                       _joinRoomTextEditingController.text = "";
                       await showDialog(
                         context: context,
@@ -489,15 +505,15 @@ class _VideoCallPageState extends State<VideoCallPage> {
                         signaling
                             ?.joinRoomById(_joinRoomTextEditingController.text)
                             .then((value) {
-                              if (value) {
+                              if (value.isEmpty) {
                                 setState(() {
                                   inCalling = true;
                                   roomId = _joinRoomTextEditingController.text;
                                 });
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('❌ Invalid Room ID'),
+                                  SnackBar(
+                                    content: Text(value),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -513,6 +529,32 @@ class _VideoCallPageState extends State<VideoCallPage> {
         },
       ),
     );
+  }
+
+  Future<void> _joinRoom(String roomId) async {
+    try {
+      setState(() => inCalling = true);
+
+      final response = await signaling?.joinRoomById(roomId);
+
+      if ((response ?? "").isNotEmpty) {
+        setState(() => inCalling = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to join room. ${response.toString()}'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Successfully joined room!')));
+      }
+    } catch (e) {
+      setState(() => inCalling = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error joining room: $e')));
+    }
   }
 
   Widget _buildActionButton({

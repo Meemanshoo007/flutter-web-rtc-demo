@@ -6,21 +6,39 @@ class Signaling {
   String? _roomId;
   Map<String, dynamic> _configurationServer = {
     'iceServers': [
+      // STUN
+      {"urls": "stun:stun.l.google.com:19302"},
+      {"urls": "stun:stun1.l.google.com:19302"},
+      {"urls": "stun:stun2.l.google.com:19302"},
+      {"urls": "stun:stun3.l.google.com:19302"},
+      {"urls": "stun:stun4.l.google.com:19302"},
+      {"urls": "stun:stun.services.mozilla.com"},
+
+      // TURN
+
+      // Auth
       {
-        'urls': [
-          'stun:stun1.l.google.com:19302',
-          'stun:stun2.l.google.com:19302',
-        ]
+        "urls": 'turn:relay1.expressturn.com:3478',
+        "username": 'efWW4MZVVGKY5O1X8S',
+        "credential": 'jHZgw9nrJ07EQRWk',
+      },
+      {
+        "urls": 'turn:relay1.expressturn.com:3478',
+        "username": 'efE9XLF5VM4ONSNTDZ',
+        "credential": 'Z8NqEhi8am1cWbic',
+      },
+
+      // Fake
+      {
+        "urls": 'turn:relay1.expressturn.com:3478',
+        "username": 'efS1GKFN2MP8PQV3Z8',
+        "credential": 'kEA7078R1T2MfnxB',
       },
     ],
-    'sdpSemantics': 'unified-plan',
   };
 
   final Map<String, dynamic> offerSdpConstraints = {
-    "mandatory": {
-      "OfferToReceiveAudio": true,
-      "OfferToReceiveVideo": true,
-    },
+    "mandatory": {"OfferToReceiveAudio": true, "OfferToReceiveVideo": true},
     "optional": [],
   };
 
@@ -37,9 +55,7 @@ class Signaling {
 
     _localStream = await navigator.mediaDevices.getUserMedia({
       'audio': true,
-      'video': {
-        'facingMode': 'user',
-      },
+      'video': {'facingMode': 'user'},
     });
     onLocalStream.call(_localStream);
 
@@ -70,9 +86,7 @@ class Signaling {
     await _rtcPeerConnection.setLocalDescription(offer);
     print('Created offer: ${offer.toMap()}');
 
-    final roomWithOffer = {
-      'offer': offer.toMap(),
-    };
+    final roomWithOffer = {'offer': offer.toMap()};
     await roomRef.set(roomWithOffer);
     print('New room created with SDP offer. Room ID: ${roomRef.id}');
     // Code for creating a room above
@@ -102,11 +116,13 @@ class Signaling {
         if (change.type == DocumentChangeType.added) {
           final data = change.doc.data();
           print('Got new remote ICE candidate: $data');
-          await _rtcPeerConnection.addCandidate(RTCIceCandidate(
-            data?['candidate'],
-            data?['sdpMid'],
-            data?['sdpMlineIndex'],
-          ));
+          await _rtcPeerConnection.addCandidate(
+            RTCIceCandidate(
+              data?['candidate'],
+              data?['sdpMid'],
+              data?['sdpMlineIndex'],
+            ),
+          );
         }
       });
     });
@@ -115,21 +131,22 @@ class Signaling {
     return _roomId;
   }
 
-  Future<void> joinRoomById(String roomId) async {
+  Future<bool> joinRoomById(String roomId) async {
     _roomId = roomId;
     print('Join room: $_roomId');
     final roomRef = db.collection('rooms').doc(_roomId);
     final roomSnapshot = await roomRef.get();
     print('Got room: ${roomSnapshot.exists}');
+    if (!roomSnapshot.exists) {
+      return false; // ❌ wrong room id
+    }
 
     if (roomSnapshot.exists) {
       print('Create PeerConnection with configuration: $_configurationServer');
 
       _localStream = await navigator.mediaDevices.getUserMedia({
         'audio': true,
-        'video': {
-          'facingMode': 'user',
-        },
+        'video': {'facingMode': 'user'},
       });
       onLocalStream.call(_localStream);
 
@@ -161,15 +178,14 @@ class Signaling {
       final offer = roomSnapshot.data()?['offer'];
       print('Got offer: $offer');
       await _rtcPeerConnection.setRemoteDescription(
-          RTCSessionDescription(offer['sdp'], offer['type']));
-      final RTCSessionDescription answer =
-          await _rtcPeerConnection.createAnswer(offerSdpConstraints);
+        RTCSessionDescription(offer['sdp'], offer['type']),
+      );
+      final RTCSessionDescription answer = await _rtcPeerConnection
+          .createAnswer(offerSdpConstraints);
       print('Created answer: ${answer.toMap()}');
       await _rtcPeerConnection.setLocalDescription(answer);
 
-      final roomWithAnswer = {
-        'answer': answer.toMap(),
-      };
+      final roomWithAnswer = {'answer': answer.toMap()};
       await roomRef.update(roomWithAnswer);
       // Code for creating SDP answer above
 
@@ -179,16 +195,20 @@ class Signaling {
           if (change.type == DocumentChangeType.added) {
             final data = change.doc.data();
             print('Got new remote ICE candidate: $data');
-            await _rtcPeerConnection.addCandidate(RTCIceCandidate(
-              data?['candidate'],
-              data?['sdpMid'],
-              data?['sdpMlineIndex'],
-            ));
+            await _rtcPeerConnection.addCandidate(
+              RTCIceCandidate(
+                data?['candidate'],
+                data?['sdpMid'],
+                data?['sdpMlineIndex'],
+              ),
+            );
           }
         });
       });
       // Listening for remote ICE candidates above
     }
+
+    return true;
   }
 
   void muteMic() {
@@ -212,13 +232,15 @@ class Signaling {
     // Delete room on hangup
     if (_roomId != null) {
       final roomRef = db.collection('rooms').doc(_roomId);
-      final calleeCandidates =
-          await roomRef.collection('calleeCandidates').get();
+      final calleeCandidates = await roomRef
+          .collection('calleeCandidates')
+          .get();
       calleeCandidates.docs.forEach((candidate) async {
         await candidate.reference.delete();
       });
-      final callerCandidates =
-          await roomRef.collection('callerCandidates').get();
+      final callerCandidates = await roomRef
+          .collection('callerCandidates')
+          .get();
       callerCandidates.docs.forEach((candidate) async {
         await candidate.reference.delete();
       });

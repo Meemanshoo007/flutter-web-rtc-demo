@@ -136,7 +136,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Room: ${roomId!.substring(0, 8)}...',
+                    'Room: ${(roomId ?? "").length > 7 ? roomId!.substring(0, 8) : roomId}...',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -414,6 +414,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
                       end: Alignment.bottomRight,
                     ),
                     onPressed: () async {
+                      _joinRoomTextEditingController.text = "";
                       await showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -485,13 +486,23 @@ class _VideoCallPageState extends State<VideoCallPage> {
                         ),
                       );
                       if (_joinRoomTextEditingController.text.isNotEmpty) {
-                        await signaling?.joinRoomById(
-                          _joinRoomTextEditingController.text,
-                        );
-                        setState(() {
-                          inCalling = true;
-                          roomId = _joinRoomTextEditingController.text;
-                        });
+                        signaling
+                            ?.joinRoomById(_joinRoomTextEditingController.text)
+                            .then((value) {
+                              if (value) {
+                                setState(() {
+                                  inCalling = true;
+                                  roomId = _joinRoomTextEditingController.text;
+                                });
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('❌ Invalid Room ID'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            });
                       }
                     },
                   ),

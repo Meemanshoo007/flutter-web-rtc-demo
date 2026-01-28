@@ -4,35 +4,31 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 class Signaling {
   FirebaseFirestore db = FirebaseFirestore.instance;
   String? _roomId;
+
   Map<String, dynamic> _configurationServer = {
     'iceServers': [
       // STUN
-      {"urls": "stun:stun.l.google.com:19302"},
-      {"urls": "stun:stun1.l.google.com:19302"},
-      {"urls": "stun:stun2.l.google.com:19302"},
-      {"urls": "stun:stun3.l.google.com:19302"},
-      {"urls": "stun:stun4.l.google.com:19302"},
-      {"urls": "stun:stun.services.mozilla.com"},
+      {'urls': 'stun:stun.l.google.com:19302'},
 
-      // TURN
-
-      // Auth
+      // TURN UDP
       {
-        "urls": 'turn:relay1.expressturn.com:3478',
-        "username": 'efWW4MZVVGKY5O1X8S',
-        "credential": 'jHZgw9nrJ07EQRWk',
-      },
-      {
-        "urls": 'turn:relay1.expressturn.com:3478',
-        "username": 'efE9XLF5VM4ONSNTDZ',
-        "credential": 'Z8NqEhi8am1cWbic',
+        'urls': 'turn:global.relay.metered.ca:80',
+        'username': 'ff9db3b54b9fae3ac2ccd6dc',
+        'credential': '/HQd62yJI3kOBqV/',
       },
 
-      // Fake
+      // TURN TCP (very important)
       {
-        "urls": 'turn:relay1.expressturn.com:3478',
-        "username": 'efS1GKFN2MP8PQV3Z8',
-        "credential": 'kEA7078R1T2MfnxB',
+        'urls': 'turn:global.relay.metered.ca:80?transport=tcp',
+        'username': 'ff9db3b54b9fae3ac2ccd6dc',
+        'credential': '/HQd62yJI3kOBqV/',
+      },
+
+      // TURN TLS (works on strict networks)
+      {
+        'urls': 'turns:global.relay.metered.ca:443',
+        'username': 'ff9db3b54b9fae3ac2ccd6dc',
+        'credential': '/HQd62yJI3kOBqV/',
       },
     ],
   };

@@ -40,16 +40,20 @@ class Signaling {
 
   Future<String?> createRoom() async {
     try {
+      ;
       final roomRef = db.collection('rooms').doc();
+
       _roomId = roomRef.id;
 
       _localStream = await navigator.mediaDevices.getUserMedia({
         'audio': true,
         'video': {'facingMode': 'user'},
       });
+
       onLocalStream.call(_localStream!);
 
       _rtcPeerConnection = await createPeerConnection(_configurationServer);
+
       registerPeerConnectionListeners();
 
       _localStream!.getTracks().forEach((track) {

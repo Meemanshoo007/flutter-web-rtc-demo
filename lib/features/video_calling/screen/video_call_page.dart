@@ -34,6 +34,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
   @override
   void initState() {
+    signaling = Signaling();
     _connect().then((va) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _handleDeepLink();
@@ -61,29 +62,26 @@ class _VideoCallPageState extends State<VideoCallPage> {
   Future<void> _connect() async {
     await localRenderer.initialize();
     await remoteRenderer.initialize();
-    if (signaling == null) {
-      signaling = Signaling();
 
-      signaling?.onLocalStream = ((stream) {
-        localRenderer.srcObject = stream;
-        _activeStream = stream;
-        _startFirstRecording(stream);
-      });
+    signaling?.onLocalStream = ((stream) {
+      localRenderer.srcObject = stream;
+      _activeStream = stream;
+      _startFirstRecording(stream);
+    });
 
-      signaling?.onAddRemoteStream = ((stream) {
-        remoteRenderer.srcObject = stream;
-      });
+    signaling?.onAddRemoteStream = ((stream) {
+      remoteRenderer.srcObject = stream;
+    });
 
-      signaling?.onRemoveRemoteStream = (() {
-        remoteRenderer.srcObject = null;
-      });
+    signaling?.onRemoveRemoteStream = (() {
+      remoteRenderer.srcObject = null;
+    });
 
-      signaling?.onDisconnect = (() {
-        if (mounted && inCalling) {
-          _handleHangUp();
-        }
-      });
-    }
+    signaling?.onDisconnect = (() {
+      if (mounted && inCalling) {
+        _handleHangUp();
+      }
+    });
   }
 
   @override
@@ -92,6 +90,9 @@ class _VideoCallPageState extends State<VideoCallPage> {
     localRenderer.dispose();
     remoteRenderer.dispose();
     _mediaRecorder = null;
+    if (_segmentTimer != null) {
+      _segmentTimer!.cancel();
+    }
   }
 
   // --- RECORDING LOGIC ---

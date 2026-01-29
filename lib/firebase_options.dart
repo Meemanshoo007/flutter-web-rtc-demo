@@ -23,20 +23,11 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -50,22 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA1UuXuOcHZZrraPIVuZwi_9cCEtPLanIk',
-    appId: '1:365129109511:web:69c7825e84c4ac46299aa2',
-    messagingSenderId: '365129109511',
-    projectId: 'demo1-527bc',
-    authDomain: 'demo1-527bc.firebaseapp.com',
-    databaseURL: 'https://demo1-527bc-default-rtdb.firebaseio.com',
-    storageBucket: 'demo1-527bc.appspot.com',
-    measurementId: 'G-JG6H4487WG',
+    apiKey: 'AIzaSyAeUS51IXqUWuyokg85T4lVPTZLmkP-7aU',
+    appId: '1:362147646086:web:c143e935d2a479ab115f07',
+    messagingSenderId: '362147646086',
+    projectId: 'videocallingdemo-8e921',
+    authDomain: 'videocallingdemo-8e921.firebaseapp.com',
+    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
+    measurementId: 'G-D0Q40C7VVC',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAJtPr3NbIBgiiNjydMoFqvhJrYjhCfsko',
-    appId: '1:365129109511:android:70c3543a1b8dd269299aa2',
-    messagingSenderId: '365129109511',
-    projectId: 'demo1-527bc',
-    databaseURL: 'https://demo1-527bc-default-rtdb.firebaseio.com',
-    storageBucket: 'demo1-527bc.appspot.com',
+    apiKey: 'AIzaSyDfM9CFM-C5YS7WtB85Gjx0yjP2fFRS00s',
+    appId: '1:362147646086:android:4032123005e42eec115f07',
+    messagingSenderId: '362147646086',
+    projectId: 'videocallingdemo-8e921',
+    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAtAnaPPFQLr7tBoc2ZvGQloTOM6SbcPDU',
+    appId: '1:362147646086:ios:f1fa649684ced6f3115f07',
+    messagingSenderId: '362147646086',
+    projectId: 'videocallingdemo-8e921',
+    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
+    iosBundleId: 'com.example.newFlutterFirebaseWebrtc',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAtAnaPPFQLr7tBoc2ZvGQloTOM6SbcPDU',
+    appId: '1:362147646086:ios:f1fa649684ced6f3115f07',
+    messagingSenderId: '362147646086',
+    projectId: 'videocallingdemo-8e921',
+    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
+    iosBundleId: 'com.example.newFlutterFirebaseWebrtc',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyAeUS51IXqUWuyokg85T4lVPTZLmkP-7aU',
+    appId: '1:362147646086:web:2b033e30a9a1054a115f07',
+    messagingSenderId: '362147646086',
+    projectId: 'videocallingdemo-8e921',
+    authDomain: 'videocallingdemo-8e921.firebaseapp.com',
+    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
+    measurementId: 'G-SZCLYSQ58F',
   );
 }

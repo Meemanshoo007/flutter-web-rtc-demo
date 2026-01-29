@@ -77,7 +77,6 @@ class Signaling {
         'offer': offer.toMap(),
         'createdAt': FieldValue.serverTimestamp(),
       };
-
       await roomRef.set(roomWithOffer);
       print('New room created with SDP offer. Room ID: ${roomRef.id}');
 

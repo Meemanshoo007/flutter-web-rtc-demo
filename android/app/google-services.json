@@ -1,26 +1,79 @@
 {
   "project_info": {
-    "project_number": "362147646086",
-    "project_id": "videocallingdemo-8e921",
-    "storage_bucket": "videocallingdemo-8e921.firebasestorage.app"
+    "project_number": "656380118813",
+    "project_id": "omnistarr-cg",
+    "storage_bucket": "omnistarr-cg.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:362147646086:android:4032123005e42eec115f07",
+        "mobilesdk_app_id": "1:656380118813:android:b232c7780692c8ab2743f4",
         "android_client_info": {
           "package_name": "com.example.new_flutter_firebase_webrtc"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "656380118813-0hr2ocesrm02tk0guqngamjhu3if5o5a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDfM9CFM-C5YS7WtB85Gjx0yjP2fFRS00s"
+          "current_key": "AIzaSyBPG_qWpmaxyJiTPgwnTYsIjeJZqPFNE2o"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "656380118813-0hr2ocesrm02tk0guqngamjhu3if5o5a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "656380118813-1970vmqbdhak9c3vkf9vv9ljsia8q02n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vezma.cg.vezmaOmsCg"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656380118813:android:fdac9c6d71b560522743f4",
+        "android_client_info": {
+          "package_name": "com.vezma.cg.vezma_oms_cg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "656380118813-0hr2ocesrm02tk0guqngamjhu3if5o5a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPG_qWpmaxyJiTPgwnTYsIjeJZqPFNE2o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "656380118813-0hr2ocesrm02tk0guqngamjhu3if5o5a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "656380118813-1970vmqbdhak9c3vkf9vv9ljsia8q02n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vezma.cg.vezmaOmsCg"
+              }
+            }
+          ]
         }
       }
     }

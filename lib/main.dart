@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:new_flutter_firebase_webrtc/common/background/rive_background.dart';
 import 'package:new_flutter_firebase_webrtc/utils/theme/controller/theme_controller.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/screen/video_call_page.dart';
 import 'package:provider/provider.dart';

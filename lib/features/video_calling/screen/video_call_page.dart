@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:new_flutter_firebase_webrtc/common/dialog/comp_dialog.dart';
 import 'package:new_flutter_firebase_webrtc/features/recording_playback_screen.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/screen/calling_screen.dart';
@@ -22,10 +25,10 @@ class _VideoCallPageState extends State<VideoCallPage> {
   RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
   bool inCalling = false;
   String? roomId;
-
+  bool isInitializing = true;
   MediaRecorder? _mediaRecorder;
   bool _isRecording = false;
-  List<String> _recordedSegments = []; // Stores the list of Blob URLs
+  // List<String> recordedSegments = []; // Stores the list of Blob URLs
   Timer? _segmentTimer; // Timer to cut audio every 60 seconds
   MediaStream? _activeStream; // Keep reference to stream for restarts
 
@@ -37,7 +40,12 @@ class _VideoCallPageState extends State<VideoCallPage> {
     signaling = Signaling();
     _connect().then((va) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _handleDeepLink();
+        if (mounted) {
+          setState(() {
+            isInitializing = false;
+          });
+          _handleDeepLink();
+        }
       });
     });
     super.initState();
@@ -97,42 +105,89 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
   // --- RECORDING LOGIC ---
   void _startFirstRecording(MediaStream stream) {
-    _recordedSegments.clear(); // Clear old segments
+    print("meem1");
+    // recordedSegments.clear(); // Clear old segments
+    print("meem2");
     _startRecordingSegment(stream);
-
+    print("meem3");
     // Start the 60-second timer
     _segmentTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
       _cycleRecording();
     });
   }
 
-  void _startRecordingSegment(MediaStream stream) {
+  void _startRecordingSegment(MediaStream stream) async {
     try {
+      print("🔥 [Recording] Preparing Audio-Only Stream...");
+
+      // 1. Get the Audio Track from the main stream
+      var audioTracks = stream.getAudioTracks();
+      if (audioTracks.isEmpty) {
+        print("❌ No audio track found!");
+        return;
+      }
+      var audioTrack = audioTracks.first;
+
+      // 2. Create a NEW "Audio-Only" Stream
+      // We give it a unique ID ('audio_only_segment')
+      MediaStream audioOnlyStream = await createLocalMediaStream(
+        'audio_only_segment',
+      );
+
+      // 3. Add the audio track to this new stream
+      audioOnlyStream.addTrack(audioTrack);
+
+      print(
+        "🔥 [Recording] Stream Created. Tracks: ${audioOnlyStream.getTracks().length}",
+      );
+
+      // 4. Initialize Recorder
       _mediaRecorder = MediaRecorder();
 
-      // Start recording (WebM format)
-      _mediaRecorder?.startWeb(stream, mimeType: 'video/webm;codecs=vp8,opus');
+      // 5. Record the NEW stream (Not the camera stream)
+      // Now 'audio/webm' works perfectly because there is no video track!
+      _mediaRecorder?.startWeb(
+        audioOnlyStream,
+        mimeType: 'audio/webm;codecs=opus',
+      );
 
       setState(() {
         _isRecording = true;
       });
-      print("Started recording segment #${_recordedSegments.length + 1}");
     } catch (e) {
-      print("Error starting record: $e");
+      print("❌ Error starting record: $e");
+      // Fallback: If creating the stream fails, try the original just to be safe
+      try {
+        print("⚠️ Falling back to video recording...");
+        _mediaRecorder?.startWeb(stream, mimeType: 'video/webm');
+        setState(() => _isRecording = true);
+      } catch (fallbackError) {
+        print("❌ Fallback failed: $fallbackError");
+      }
     }
   }
 
   Future<void> _cycleRecording() async {
+    print(
+      "🔥 [START] ${(!_isRecording || _mediaRecorder == null || _activeStream == null)}",
+    );
     if (!_isRecording || _mediaRecorder == null || _activeStream == null)
       return;
 
     try {
+      print("🔥 [START] CycleRecording.");
       // 1. Stop current
       // On Web, stop returns the Blob URL String
       final dynamic result = await _mediaRecorder?.stop();
       if (result != null) {
-        _recordedSegments.add(result as String);
-        print("Saved segment #${_recordedSegments.length}: $result");
+        // recordedSegments.add(result as String);
+        // print("🔥Saved segment #${recordedSegments.length}: $result");
+
+        uploadSegmentToFirebase(
+          blobUrl: result,
+          roomId: roomId ?? 'unknown_room',
+          role: signaling?.currentRole ?? 'unknown',
+        );
       }
 
       // 2. Restart immediately
@@ -145,7 +200,18 @@ class _VideoCallPageState extends State<VideoCallPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: inCalling
+      body: isInitializing
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text("Initializing Camera..."),
+                ],
+              ),
+            )
+          : inCalling
           ? CallingUI(
               localRenderer: localRenderer,
               remoteRenderer: remoteRenderer,
@@ -185,10 +251,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
         // On Web, stopWeb returns the Blob URL string
         dynamic result = await _mediaRecorder?.stop();
         if (result != null) {
-          _recordedSegments.add(result as String);
-          print(
-            "Saved final segment. Total segments: ${_recordedSegments.length}",
-          );
+          // recordedSegments.add(result as String);
         }
       } catch (e) {
         print("Error stopping recorder: $e");
@@ -197,27 +260,27 @@ class _VideoCallPageState extends State<VideoCallPage> {
     }
 
     await signaling?.hungUp();
-    final finalSegments = List<String>.from(_recordedSegments);
+    // final finalSegments = List<String>.from(recordedSegments);
     setState(() {
       roomId = null;
       inCalling = false;
       isMicMuted = false;
       isVideoOff = false;
-      _recordedSegments.clear();
+      // recordedSegments.clear();
     });
 
     SystemNavigator.routeInformationUpdated(uri: Uri.parse('/'));
 
-    if (finalSegments.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          // NOTE: You need to update RecordingPlaybackScreen to accept List<String>
-          builder: (context) =>
-              RecordingPlaybackScreen(sourceUrls: finalSegments),
-        ),
-      );
-    }
+    // if (finalSegments.isNotEmpty) {
+    //   Navigator.push(
+    //     context,
+    //     MaterialPageRoute(
+    //       // NOTE: You need to update RecordingPlaybackScreen to accept List<String>
+    //       builder: (context) =>
+    //           RecordingPlaybackScreen(sourceUrls: finalSegments),
+    //     ),
+    //   );
+    // }
   }
 
   void _handleCreateRoom(String lRoomId) {
@@ -266,6 +329,157 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
     for (var track in stream.getVideoTracks()) {
       track.enabled = !track.enabled;
+    }
+  }
+
+  void addToCloudnary({
+    required String blobUrl,
+    required String roomId,
+    required String role,
+  }) async {
+    // === Upload to Cloudinary immediately ===
+    String role = 'callee';
+    final cloudUrl = await uploadSegmentToCloudinary(
+      blobUrl: blobUrl,
+      roomId: roomId ?? 'unknown_room',
+      role: role,
+    );
+
+    if (cloudUrl != null) {
+      print('Cloudinary URL: $cloudUrl');
+      // Optionally store in Firestore:
+      // await FirebaseFirestore.instance.collection('rooms/$roomId/segments').add({
+      //   'url': cloudUrl,
+      //   'role': role,
+      //   'createdAt': FieldValue.serverTimestamp(),
+      // });
+    }
+  }
+
+  Future<String?> uploadSegmentToCloudinary({
+    required String blobUrl,
+    required String roomId,
+    required String role,
+  }) async {
+    try {
+      // 1️⃣ Fetch bytes from Blob URL
+      final response = await http.get(Uri.parse(blobUrl));
+      if (response.statusCode != 200) {
+        print('Failed to fetch blob: ${response.statusCode}');
+        return null;
+      }
+      final Uint8List bytes = response.bodyBytes;
+
+      // 2️⃣ Prepare Cloudinary multipart request
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://api.cloudinary.com/v1_1/dkgrvkurl/video/upload'),
+      );
+
+      // Folder structure: roomId/role
+      request.fields['upload_preset'] = 'webrtc_demo';
+      request.fields['folder'] = '$roomId/$role';
+
+      // Add file
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          bytes,
+          filename: '${DateTime.now().millisecondsSinceEpoch}.webm',
+          contentType: http.MediaType('video', 'webm'),
+        ),
+      );
+
+      // 3️⃣ Send request
+      var cloudRes = await request.send();
+      if (cloudRes.statusCode != 200 && cloudRes.statusCode != 201) {
+        print('Cloudinary upload failed: ${cloudRes.statusCode}');
+        return null;
+      }
+
+      final resStr = await cloudRes.stream.bytesToString();
+      final jsonRes = json.decode(resStr);
+
+      final String uploadedUrl = jsonRes['secure_url'];
+      print('Uploaded segment to Cloudinary: $uploadedUrl');
+
+      return uploadedUrl;
+    } catch (e) {
+      print('Error uploading segment: $e');
+      return null;
+    }
+  }
+
+  Future<String?> uploadSegmentToFirebase({
+    required String blobUrl,
+    required String roomId,
+    required String role,
+  }) async {
+    print("🔥 [START] Upload to Firebase initiated.");
+    print("🔥   -> Blob URL: $blobUrl");
+    print("🔥   -> Room ID: $roomId");
+    print("🔥   -> Role: $role");
+
+    try {
+      // 1️⃣ Fetch bytes from Blob URL
+      print("🔥 [Step 1] Fetching bytes from Blob URL...");
+      final response = await http.get(Uri.parse(blobUrl));
+
+      print("🔥   -> HTTP Response Code: ${response.statusCode}");
+
+      if (response.statusCode != 200) {
+        print('🔥 [ERROR] Failed to fetch blob: ${response.statusCode}');
+        return null;
+      }
+
+      final Uint8List bytes = response.bodyBytes;
+      print(
+        "🔥   -> Bytes fetched successfully. Size: ${bytes.lengthInBytes} bytes",
+      );
+
+      // 2️⃣ Prepare Firebase Storage Reference
+      print("🔥 [Step 2] Preparing Storage Reference...");
+      final String fileName = '${DateTime.now().millisecondsSinceEpoch}.webm';
+      final String fullPath = '$roomId/$role/$fileName';
+
+      final Reference ref = FirebaseStorage.instance
+          .ref()
+          .child(roomId)
+          .child(role)
+          .child(fileName);
+
+      print("🔥   -> Target Path: $fullPath");
+
+      // 3️⃣ Upload bytes with Metadata
+      print("🔥 [Step 3] Starting Upload...");
+      // Setting contentType is important for the browser to know it's audio when playing back
+      final metadata = SettableMetadata(contentType: 'audio/webm');
+
+      // Use putData for raw bytes (standard for Web)
+      final UploadTask uploadTask = ref.putData(bytes, metadata);
+
+      // Optional: Listen to progress
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        final progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        print('🔥   -> Upload Progress: ${progress.toStringAsFixed(1)}%');
+      });
+
+      // Wait for upload to complete
+      final TaskSnapshot snapshot = await uploadTask;
+      print("🔥   -> Upload Task Completed. State: ${snapshot.state}");
+
+      // 4️⃣ Get and return the Download URL
+      print("🔥 [Step 4] Getting Download URL...");
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
+      print('🔥 [SUCCESS] Uploaded audio segment to Firebase: $downloadUrl');
+
+      return downloadUrl;
+    } catch (e, stackTrace) {
+      print('🔥 [EXCEPTION] Error uploading segment to Firebase:');
+      print('🔥   -> Error: $e');
+      print('🔥   -> StackTrace: $stackTrace');
+      return null;
     }
   }
 }

@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:new_flutter_firebase_webrtc/common/app_icon/app_icon.dart';
+import 'package:new_flutter_firebase_webrtc/common/background/rive_background.dart';
 import 'package:new_flutter_firebase_webrtc/common/button/comp_fill_button.dart';
 import 'package:new_flutter_firebase_webrtc/common/button/comp_outline_button.dart';
 import 'package:new_flutter_firebase_webrtc/common/dialog/comp_dialog.dart';
@@ -29,130 +33,185 @@ class HomeUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
-    return Center(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return Container(
-            alignment: Alignment.center,
-            width: constraints.maxWidth < 600
-                ? constraints.maxWidth
-                : constraints.maxWidth / 2,
-            child: Padding(
-              padding: const EdgeInsets.all(TSizes.lg),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Icon
-                  AppIconWidget(),
+    return RiveBackground(
+      child: Center(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Container(
+              alignment: Alignment.center,
+              width: constraints.maxWidth < 600
+                  ? constraints.maxWidth
+                  : constraints.maxWidth / 2,
+              child: Padding(
+                padding: const EdgeInsets.all(TSizes.lg),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Icon
+                    AppIconWidget(),
 
-                  AppSpacing.vXl,
-                  // Title
-                  Text(
-                    'Start Video Call',
-                    style: themeNotifier.themeData.textTheme.headlineLarge,
-                  ),
+                    AppSpacing.vXl,
+                    // Title
+                    Text(
+                      'Start Video Call',
+                      style: themeNotifier.themeData.textTheme.headlineLarge,
+                    ),
 
-                  AppSpacing.vXs,
-                  // Subtitle
-                  Text(
-                    'Create a new room or join an existing one',
-                    style: themeNotifier.themeData.textTheme.bodySmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  // Version
-                  AppSpacing.vSm,
-                  Text(
-                    'Version 1.1.3',
-                    style: themeNotifier.themeData.textTheme.labelMedium,
-                    textAlign: TextAlign.center,
-                  ),
+                    AppSpacing.vXs,
+                    // Subtitle
+                    Text(
+                      'Create a new room or join an existing one',
+                      style: themeNotifier.themeData.textTheme.bodySmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    // Version
+                    AppSpacing.vSm,
+                    Text(
+                      'Version 1.1.5',
+                      style: themeNotifier.themeData.textTheme.labelMedium,
+                      textAlign: TextAlign.center,
+                    ),
 
-                  AppSpacing.vXl,
-                  AppSpacing.vXl,
-                  CompFillButton(
-                    icon: Icons.add_circle_outline_rounded,
-                    title: 'Create Room',
-                    onPressed: () async {
-                      try {
-                        if (signaling == null) {
-                          throw Exception('Signaling is null');
+                    AppSpacing.vXl,
+                    AppSpacing.vXl,
+                    CompFillButton(
+                      icon: Icons.add_circle_outline_rounded,
+                      title: 'Create Room',
+                      onPressed: () async {
+                        try {
+                          if (signaling == null) {
+                            throw Exception('Signaling is null');
+                          }
+
+                          final lRoomId = await signaling?.createRoom();
+
+                          if (lRoomId != null) {
+                            showDialog(
+                              context: context,
+                              builder: (context) =>
+                                  RoomCreatedDialog(lRoomId: lRoomId),
+                            );
+
+                            onCreateRoom(lRoomId);
+                          }
+                        } catch (e) {
+                          print("object $e");
                         }
+                      },
+                    ),
 
-                        final lRoomId = await signaling?.createRoom();
-
-                        if (lRoomId != null) {
-                          showDialog(
-                            context: context,
-                            builder: (context) =>
-                                RoomCreatedDialog(lRoomId: lRoomId),
-                          );
-
-                          onCreateRoom(lRoomId);
-                        }
-                      } catch (e) {
-                        print("object $e");
-                      }
-                    },
-                  ),
-
-                  // Join Room Button
-                  AppSpacing.vLg,
-                  CompOutlineButton(
-                    onPressed: () async {
-                      showDialog(
-                        context: context,
-                        builder: (context) => JoinRoomDialog(
-                          onRoomSelected: (roomId) async {
-                            if (roomId.isEmpty) {
-                              CompDialog.show(
-                                context: context,
-                                message: "Must enter room id",
-                                dialogStyle: DialogStyle.error,
-                              );
-                            } else {
-                              onJoinRoom(roomId);
-                            }
-                          },
-                        ),
-                      );
-                    },
-                    title: 'Join Room',
-                    icon: Icons.login_rounded,
-                  ),
-                  // AppSpacing.vLg,
-                  // SizedBox(
-                  //   width: double.infinity,
-                  //   child: OutlinedButton(
-                  //     onPressed: () async {
-                  //       String? url = await uploadImageAndSaveToFirestore();
-                  //       if (url != null) {
-                  //         print('Uploaded Image URL: $url');
-                  //       }
-                  //
-                  //       // Navigator.push(
-                  //       //   context,
-                  //       //   MaterialPageRoute(
-                  //       //     builder: (context) => const TranscriptionTestPage(),
-                  //       //   ),
-                  //       // );
-                  //     },
-                  //     child: Row(
-                  //       mainAxisAlignment: MainAxisAlignment.center,
-                  //       children: [
-                  //         const Icon(Icons.login_rounded, size: 24),
-                  //         AppSpacing.hSm,
-                  //         const Text('Test Transcription'),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-                ],
+                    // Join Room Button
+                    AppSpacing.vLg,
+                    CompOutlineButton(
+                      onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (context) => JoinRoomDialog(
+                            onRoomSelected: (roomId) async {
+                              if (roomId.isEmpty) {
+                                CompDialog.show(
+                                  context: context,
+                                  message: "Must enter room id",
+                                  dialogStyle: DialogStyle.error,
+                                );
+                              } else {
+                                onJoinRoom(roomId);
+                              }
+                            },
+                          ),
+                        );
+                      },
+                      title: 'Join Room',
+                      icon: Icons.login_rounded,
+                    ),
+                    // AppSpacing.vLg,
+                    // SizedBox(
+                    //   width: double.infinity,
+                    //   child: OutlinedButton(
+                    //     onPressed: () async {
+                    //       String? url = await uploadImageAndSaveToFirestore();
+                    //       if (url != null) {
+                    //         print('Image uploaded successfully: $url');
+                    //       }
+                    //
+                    //       // Navigator.push(
+                    //       //   context,
+                    //       //   MaterialPageRoute(
+                    //       //     builder: (context) => const TranscriptionTestPage(),
+                    //       //   ),
+                    //       // );
+                    //     },
+                    //     child: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.center,
+                    //       children: [
+                    //         const Icon(Icons.login_rounded, size: 24),
+                    //         AppSpacing.hSm,
+                    //         const Text('Test Transcription'),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
+  }
+
+  Future<String?> uploadImageToCloudinary() async {
+    try {
+      // 1️⃣ Pick image
+      final picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image == null) return null;
+
+      Uint8List imageBytes = await image.readAsBytes();
+
+      // 2️⃣ Prepare multipart request
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://api.cloudinary.com/v1_1/dkgrvkurl/image/upload'),
+      );
+
+      // 3️⃣ Add required fields
+      request.fields['upload_preset'] = 'webrtc_demo';
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          imageBytes,
+          filename: image.name,
+          contentType: http.MediaType(
+            'image',
+            'jpeg',
+          ), // from 'package:http_parser/http_parser.dart'
+        ),
+      );
+
+      // 4️⃣ Send request
+      var response = await request.send();
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        print('Cloudinary upload failed: ${response.statusCode}');
+        return null;
+      }
+
+      var resStr = await response.stream.bytesToString();
+      var jsonRes = json.decode(resStr);
+
+      // 5️⃣ Get the uploaded image URL
+      String imageUrl = jsonRes['secure_url'];
+      print('Uploaded Image URL: $imageUrl');
+
+      return imageUrl;
+    } catch (e) {
+      print('Error uploading to Cloudinary: $e');
+      return null;
+    }
   }
 
   Future<String?> uploadImageAndSaveToFirestore() async {

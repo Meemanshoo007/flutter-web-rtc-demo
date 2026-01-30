@@ -37,10 +37,10 @@ class Signaling {
   late Function(MediaStream stream) onAddRemoteStream;
   late Function() onRemoveRemoteStream;
   late Function() onDisconnect;
-
+  String currentRole = 'unknown';
   Future<String?> createRoom() async {
     try {
-      ;
+      currentRole = 'caller';
       final roomRef = db.collection('rooms').doc();
 
       _roomId = roomRef.id;
@@ -93,7 +93,7 @@ class Signaling {
       roomRef.snapshots().listen((snapshot) async {
         final data = snapshot.data();
         if (data != null && data.containsKey('answer')) {
-          print('Got remote description: ${data["answer"]}');
+          print('Got remote description: answer}');
           final rtcSessionDescription = RTCSessionDescription(
             data['answer']['sdp'],
             data['answer']['type'],
@@ -127,6 +127,7 @@ class Signaling {
 
   Future<String> joinRoomById(String roomId) async {
     try {
+      currentRole = 'callee';
       _roomId = roomId;
       print('Join room: $_roomId');
       final roomRef = db.collection('rooms').doc(_roomId);

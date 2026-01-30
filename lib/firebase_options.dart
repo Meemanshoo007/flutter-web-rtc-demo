@@ -41,48 +41,50 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAeUS51IXqUWuyokg85T4lVPTZLmkP-7aU',
-    appId: '1:362147646086:web:c143e935d2a479ab115f07',
-    messagingSenderId: '362147646086',
-    projectId: 'videocallingdemo-8e921',
-    authDomain: 'videocallingdemo-8e921.firebaseapp.com',
-    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
-    measurementId: 'G-D0Q40C7VVC',
+    apiKey: 'AIzaSyB-b5vwm8W-MFDiAQf4rlBsyQnHLDNftMg',
+    appId: '1:656380118813:web:8591875e9a69caa72743f4',
+    messagingSenderId: '656380118813',
+    projectId: 'omnistarr-cg',
+    authDomain: 'omnistarr-cg.firebaseapp.com',
+    storageBucket: 'omnistarr-cg.firebasestorage.app',
+    measurementId: 'G-JG5YP29XPH',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDfM9CFM-C5YS7WtB85Gjx0yjP2fFRS00s',
-    appId: '1:362147646086:android:4032123005e42eec115f07',
-    messagingSenderId: '362147646086',
-    projectId: 'videocallingdemo-8e921',
-    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
+    apiKey: 'AIzaSyBPG_qWpmaxyJiTPgwnTYsIjeJZqPFNE2o',
+    appId: '1:656380118813:android:b232c7780692c8ab2743f4',
+    messagingSenderId: '656380118813',
+    projectId: 'omnistarr-cg',
+    storageBucket: 'omnistarr-cg.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAtAnaPPFQLr7tBoc2ZvGQloTOM6SbcPDU',
-    appId: '1:362147646086:ios:f1fa649684ced6f3115f07',
-    messagingSenderId: '362147646086',
-    projectId: 'videocallingdemo-8e921',
-    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
+    apiKey: 'AIzaSyCer8HvjyPAiGotghNEbg84rBZtv5vNCOE',
+    appId: '1:656380118813:ios:1a976522eb779f102743f4',
+    messagingSenderId: '656380118813',
+    projectId: 'omnistarr-cg',
+    storageBucket: 'omnistarr-cg.firebasestorage.app',
+    iosClientId: '656380118813-1uas6a26s8ckppd1ua38cik8fndvi0mr.apps.googleusercontent.com',
     iosBundleId: 'com.example.newFlutterFirebaseWebrtc',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAtAnaPPFQLr7tBoc2ZvGQloTOM6SbcPDU',
-    appId: '1:362147646086:ios:f1fa649684ced6f3115f07',
-    messagingSenderId: '362147646086',
-    projectId: 'videocallingdemo-8e921',
-    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
+    apiKey: 'AIzaSyCer8HvjyPAiGotghNEbg84rBZtv5vNCOE',
+    appId: '1:656380118813:ios:1a976522eb779f102743f4',
+    messagingSenderId: '656380118813',
+    projectId: 'omnistarr-cg',
+    storageBucket: 'omnistarr-cg.firebasestorage.app',
+    iosClientId: '656380118813-1uas6a26s8ckppd1ua38cik8fndvi0mr.apps.googleusercontent.com',
     iosBundleId: 'com.example.newFlutterFirebaseWebrtc',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAeUS51IXqUWuyokg85T4lVPTZLmkP-7aU',
-    appId: '1:362147646086:web:2b033e30a9a1054a115f07',
-    messagingSenderId: '362147646086',
-    projectId: 'videocallingdemo-8e921',
-    authDomain: 'videocallingdemo-8e921.firebaseapp.com',
-    storageBucket: 'videocallingdemo-8e921.firebasestorage.app',
-    measurementId: 'G-SZCLYSQ58F',
+    apiKey: 'AIzaSyB-b5vwm8W-MFDiAQf4rlBsyQnHLDNftMg',
+    appId: '1:656380118813:web:dbc98c457b22f32f2743f4',
+    messagingSenderId: '656380118813',
+    projectId: 'omnistarr-cg',
+    authDomain: 'omnistarr-cg.firebaseapp.com',
+    storageBucket: 'omnistarr-cg.firebasestorage.app',
+    measurementId: 'G-E7MYVKV8W3',
   );
 }

@@ -95101,7 +95101,7 @@ o=o<600?o:o/2
 s=this.b
 r=this.a
 q=t.G
-return A.hV(B.X,new A.dT(B.Ha,A.tC(A.b([new A.PJ(p),B.lR,A.e1("Start Video Call",p,p,p,s.gmZ().ok.d,p,p),B.SN,A.e1("Create a new room or join an existing one",p,p,p,s.gmZ().ok.Q,B.fA,p),B.SO,A.e1("Version 1.1.8",p,p,p,s.gmZ().ok.at,B.fA,p),B.lR,B.lR,new A.R5(new A.agC(r,a),"Create Room",B.HR,p),B.B5,new A.R6(new A.agD(r,a),"Join Room",B.p0,p),B.B5,A.hk(A.aQ_(A.vI(A.b([B.I8,B.ir,B.Yr],q),B.ar,B.bZ,B.bH),new A.agE(a)),p,1/0)],q),B.ar,B.bZ,B.bH),p),B.A,p,p,p,p,p,o)},
+return A.hV(B.X,new A.dT(B.Ha,A.tC(A.b([new A.PJ(p),B.lR,A.e1("Start Video Call",p,p,p,s.gmZ().ok.d,p,p),B.SN,A.e1("Create a new room or join an existing one",p,p,p,s.gmZ().ok.Q,B.fA,p),B.SO,A.e1("Version 1.1.9",p,p,p,s.gmZ().ok.at,B.fA,p),B.lR,B.lR,new A.R5(new A.agC(r,a),"Create Room",B.HR,p),B.B5,new A.R6(new A.agD(r,a),"Join Room",B.p0,p),B.B5,A.hk(A.aQ_(A.vI(A.b([B.I8,B.ir,B.Yr],q),B.ar,B.bZ,B.bH),new A.agE(a)),p,1/0)],q),B.ar,B.bZ,B.bH),p),B.A,p,p,p,p,p,o)},
 $S:566}
 A.agC.prototype={
 $0(){var s=0,r=A.D(t.H),q=1,p=[],o=this,n,m,l,k,j,i

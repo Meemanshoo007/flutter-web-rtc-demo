@@ -19,12 +19,9 @@ class _RiveBackgroundState extends State<RiveBackground> {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. The Rive Animation Layer
           Positioned.fill(
             child: RiveAnimation.asset(
               "assets/rive/background2.riv",
-              // BoxFit.cover is CRITICAL for backgrounds
-              // It ensures no black bars appear, cutting off edges if needed
               fit: BoxFit.cover,
               stateMachines: ['State Machine 1'],
               animations: ['Timeline 1'],
@@ -36,46 +33,37 @@ class _RiveBackgroundState extends State<RiveBackground> {
             child: IgnorePointer(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                child: Container(
-                  // A slight dark tint helps text readability and makes the blur look better
-                  color: Colors.black.withOpacity(0.2),
-                ),
+                child: Container(color: Colors.black.withValues(alpha: 0.2)),
               ),
             ),
           ),
 
-          // 3. Your Actual Content
-          // We wrap it in a SafeArea so it doesn't get hidden behind notches
           SafeArea(child: widget.child),
         ],
       ),
     );
   }
 
-  void _onRiveInit(Artboard artboard) {
-    print("DEBUG: Rive Artboard Loaded!");
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    if (_controller != null) {
+      _controller!.dispose();
+    }
+  }
 
-    // 1. Try to find the State Machine
+  void _onRiveInit(Artboard artboard) {
     var controller = StateMachineController.fromArtboard(
       artboard,
-      'State Machine 1', // CHECK THIS NAME IN EDITOR!
+      'State Machine 1',
     );
 
     if (controller != null) {
       artboard.addController(controller);
       _controller = controller;
-      print("DEBUG: State Machine Found & Running!");
     } else {
-      print("DEBUG: ERROR - State Machine 'State Machine 1' NOT FOUND.");
-      print(
-        "DEBUG: Available Animations: ${artboard.animations.map((a) => a.name).toList()}",
-      );
-
-      // Fallback: Try to play the first animation if state machine fails
       if (artboard.animations.isNotEmpty) {
-        print(
-          "DEBUG: Trying fallback animation '${artboard.animations.first.name}'",
-        );
         artboard.addController(SimpleAnimation(artboard.animations.first.name));
       }
     }

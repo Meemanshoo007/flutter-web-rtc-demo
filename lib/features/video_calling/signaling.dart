@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:new_flutter_firebase_webrtc/utils/print/print.dart';
 
 class Signaling {
   FirebaseFirestore db = FirebaseFirestore.instance;
   String? _roomId;
 
-  Map<String, dynamic> _configurationServer = {
+  final Map<String, dynamic> _configurationServer = {
     'iceServers': [
       {'urls': 'stun:stun.l.google.com:19302'},
       {
@@ -62,38 +63,32 @@ class Signaling {
 
       final callerCandidatesCollection = roomRef.collection('callerCandidates');
 
-      // ✅ FIXED: Correct null check
       _rtcPeerConnection!.onIceCandidate = ((RTCIceCandidate? candidate) {
         if (candidate == null) {
-          print('Got final candidate!');
+          compPrint('Got final candidate!');
           return;
         }
         final candidateMap = candidate.toMap();
-        print('Got candidate: $candidateMap');
+
         callerCandidatesCollection.add(candidateMap);
       });
 
       final offer = await _rtcPeerConnection!.createOffer(offerSdpConstraints);
       await _rtcPeerConnection!.setLocalDescription(offer);
-      print('Created offer: ${offer.toMap()}');
 
       final roomWithOffer = {
         'offer': offer.toMap(),
         'createdAt': FieldValue.serverTimestamp(),
       };
       await roomRef.set(roomWithOffer);
-      print('New room created with SDP offer. Room ID: ${roomRef.id}');
 
-      // ✅ FIXED: No filter, accept all tracks
       _rtcPeerConnection!.onTrack = (RTCTrackEvent event) {
         onAddRemoteStream.call(event.streams[0]);
-        print('Got remote track: ${event.streams[0]}');
       };
 
       roomRef.snapshots().listen((snapshot) async {
         final data = snapshot.data();
         if (data != null && data.containsKey('answer')) {
-          print('Got remote description: answer}');
           final rtcSessionDescription = RTCSessionDescription(
             data['answer']['sdp'],
             data['answer']['type'],
@@ -106,7 +101,7 @@ class Signaling {
         snapshot.docChanges.forEach((change) async {
           if (change.type == DocumentChangeType.added) {
             final data = change.doc.data();
-            print('Got new remote ICE candidate: $data');
+
             await _rtcPeerConnection!.addCandidate(
               RTCIceCandidate(
                 data?['candidate'],
@@ -120,7 +115,7 @@ class Signaling {
 
       return _roomId;
     } catch (e) {
-      print('Error creating room: $e');
+      compPrint('Error creating room: $e');
       return null;
     }
   }
@@ -129,10 +124,9 @@ class Signaling {
     try {
       currentRole = 'callee';
       _roomId = roomId;
-      print('Join room: $_roomId');
+
       final roomRef = db.collection('rooms').doc(_roomId);
       final roomSnapshot = await roomRef.get();
-      print('Got room: ${roomSnapshot.exists}');
 
       if (!roomSnapshot.exists) {
         return 'Invalid Room';
@@ -153,31 +147,27 @@ class Signaling {
 
       final calleeCandidatesCollection = roomRef.collection('calleeCandidates');
 
-      // ✅ FIXED: Correct null check
       _rtcPeerConnection!.onIceCandidate = (RTCIceCandidate? candidate) {
         if (candidate == null) {
-          print('Got final candidate!');
           return;
         }
-        print('Got candidate: ${candidate.candidate}');
+
         calleeCandidatesCollection.add(candidate.toMap());
       };
 
-      // ✅ FIXED: No filter, accept all tracks
       _rtcPeerConnection!.onTrack = (RTCTrackEvent event) {
-        print('Got remote track: ${event.streams[0]}');
         onAddRemoteStream.call(event.streams[0]);
       };
 
       final offer = roomSnapshot.data()?['offer'];
-      print('Got offer: $offer');
+
       await _rtcPeerConnection!.setRemoteDescription(
         RTCSessionDescription(offer['sdp'], offer['type']),
       );
 
       final RTCSessionDescription answer = await _rtcPeerConnection!
           .createAnswer(offerSdpConstraints);
-      print('Created answer: ${answer.toMap()}');
+
       await _rtcPeerConnection!.setLocalDescription(answer);
 
       final roomWithAnswer = {'answer': answer.toMap()};
@@ -187,7 +177,7 @@ class Signaling {
         snapshot.docChanges.forEach((change) async {
           if (change.type == DocumentChangeType.added) {
             final data = change.doc.data();
-            print('Got new remote ICE candidate: $data');
+
             await _rtcPeerConnection!.addCandidate(
               RTCIceCandidate(
                 data?['candidate'],
@@ -201,7 +191,6 @@ class Signaling {
 
       return '';
     } catch (e) {
-      print('Error joining room: $e');
       return e.toString();
     }
   }
@@ -243,12 +232,9 @@ class Signaling {
   }
 
   void registerPeerConnectionListeners() {
-    _rtcPeerConnection!.onIceGatheringState = (RTCIceGatheringState state) {
-      print('ICE gathering state changed: $state');
-    };
+    _rtcPeerConnection!.onIceGatheringState = (RTCIceGatheringState state) {};
 
     _rtcPeerConnection!.onConnectionState = (RTCPeerConnectionState state) {
-      print('Connection state change: $state');
       if (state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected) {
         _localStream?.getTracks().forEach((track) {
           track.stop();
@@ -262,11 +248,11 @@ class Signaling {
     };
 
     _rtcPeerConnection!.onSignalingState = (RTCSignalingState state) {
-      print('Signaling state change: $state');
+      compPrint('Signaling state change: $state');
     };
 
     _rtcPeerConnection!.onIceConnectionState = (RTCIceConnectionState state) {
-      print('ICE connection state change: $state');
+      compPrint('ICE connection state change: $state');
     };
   }
 }

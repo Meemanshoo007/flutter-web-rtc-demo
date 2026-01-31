@@ -7,7 +7,7 @@ class TTextFormFieldTheme {
     errorMaxLines: 3,
     prefixIconColor: Colors.grey,
     suffixIconColor: Colors.grey,
-    // constraints: const BoxConstraints.expand (height: 14.inputFieldHeight),
+
     labelStyle: const TextStyle().copyWith(fontSize: 14, color: Colors.black),
     hintStyle: const TextStyle().copyWith(fontSize: 14, color: Colors.black),
     errorStyle: const TextStyle().copyWith(fontStyle: FontStyle.normal),
@@ -34,15 +34,15 @@ class TTextFormFieldTheme {
       borderRadius: BorderRadius.circular(14),
       borderSide: const BorderSide(width: 2, color: Colors.orange),
     ),
-  ); // Input Decoration Theme
+  );
   static InputDecorationTheme darkInputDecorationTheme = InputDecorationTheme(
     errorMaxLines: 3,
     prefixIconColor: Colors.grey,
     suffixIconColor: Colors.grey,
-    // constraints: const BoxConstraints.expand (height: 14.inputFieldHeight),
+
     labelStyle: const TextStyle().copyWith(fontSize: 14, color: Colors.white),
     hintStyle: const TextStyle().copyWith(fontSize: 14, color: Colors.grey),
-    // errorStyle: const TextStyle().copyWith(fontStyle: FontStyle.normal),
+
     floatingLabelStyle: const TextStyle().copyWith(
       color: Colors.white.withOpacity(0.8),
     ),
@@ -66,5 +66,5 @@ class TTextFormFieldTheme {
       borderRadius: BorderRadius.circular(14),
       borderSide: const BorderSide(width: 2, color: Colors.orange),
     ),
-  ); // Input Decoration Theme
+  );
 }

@@ -1,9 +1,8 @@
-/* Light & Dark Outlined Button Themes -- */
 import 'package:flutter/material.dart';
 
 class TOutlinedButtonTheme {
-  TOutlinedButtonTheme._(); //To avoid creating instances
-  // Light Theme
+  TOutlinedButtonTheme._();
+
   static final lightOutlinedButtonTheme = OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
       elevation: 0,
@@ -17,8 +16,8 @@ class TOutlinedButtonTheme {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
-  ); // Outlined Button ThemeData
-  /* Dark Theme -- */
+  );
+
   static final darkOutlinedButtonTheme = OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
       foregroundColor: Colors.white,
@@ -31,5 +30,5 @@ class TOutlinedButtonTheme {
       padding: const EdgeInsets.symmetric(vertical: 25),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
-  ); // Outlined Button ThemeData
+  );
 }

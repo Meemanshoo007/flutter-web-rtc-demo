@@ -35,14 +35,12 @@ class CallingUI extends StatelessWidget {
     return RiveBackground(
       child: Stack(
         children: <Widget>[
-          // Remote video (full screen)
           SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            child: _buildRemoteView(context), // <--- Use helper function
+            child: _buildRemoteView(context),
           ),
 
-          // Local video (small overlay)
           Positioned(
             right: 20.0,
             top: 50.0,
@@ -55,7 +53,7 @@ class CallingUI extends StatelessWidget {
                 border: Border.all(color: Colors.white24, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     blurRadius: 10,
                     spreadRadius: 2,
                   ),
@@ -74,7 +72,6 @@ class CallingUI extends StatelessWidget {
             ),
           ),
 
-          // Room ID display
           if (roomId != null)
             Positioned(
               top: 50.0,
@@ -95,7 +92,7 @@ class CallingUI extends StatelessWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.white24),
                   ),
@@ -122,7 +119,6 @@ class CallingUI extends StatelessWidget {
               ),
             ),
 
-          // Control buttons at bottom
           Positioned(
             bottom: 40.0,
             left: 0,
@@ -134,7 +130,7 @@ class CallingUI extends StatelessWidget {
                   vertical: 16,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(50),
                   border: Border.all(color: Colors.white24),
                 ),
@@ -148,13 +144,12 @@ class CallingUI extends StatelessWidget {
                           ? Icons.mic_off_rounded
                           : Icons.mic_rounded,
                       onPressed: onToggleMic,
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
                       iconColor: Colors.white,
                     ),
 
                     const SizedBox(width: 20),
 
-                    // End call button
                     _buildControlButton(
                       icon: Icons.call_end_rounded,
                       onPressed: onHangUp,
@@ -165,15 +160,14 @@ class CallingUI extends StatelessWidget {
 
                     const SizedBox(width: 20),
 
-                    // Camera switch button
                     _buildControlButton(
                       icon: isVideoOff
                           ? Icons.videocam_off_rounded
                           : Icons.videocam_rounded,
                       onPressed: onToggleVideo,
                       backgroundColor: isVideoOff
-                          ? Colors.red.withOpacity(0.8)
-                          : Colors.white.withOpacity(0.2),
+                          ? Colors.red.withValues(alpha: 0.8)
+                          : Colors.white.withValues(alpha: 0.2),
                       iconColor: Colors.white,
                     ),
                   ],
@@ -186,9 +180,7 @@ class CallingUI extends StatelessWidget {
     );
   }
 
-  // Helper function to handle the 3 states
   Widget _buildRemoteView(BuildContext context) {
-    // State 1: WAITING (No one has joined yet)
     if (remoteRenderer.srcObject == null) {
       return Center(
         child: Container(
@@ -203,21 +195,18 @@ class CallingUI extends StatelessWidget {
       );
     }
 
-    // State 2: CONNECTED (But Audio Only / Video Off)
-    // This prevents the black screen!
     if (remoteRenderer.srcObject!.getVideoTracks().isEmpty) {
       return Container(
-        color: Colors.grey[900], // Dark background
+        color: Colors.grey[900],
         width: double.infinity,
         height: double.infinity,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Big Avatar
             Container(
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
-                color: Colors.blueAccent.withOpacity(0.2),
+                color: Colors.blueAccent.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.blueAccent, width: 2),
               ),
@@ -241,7 +230,6 @@ class CallingUI extends StatelessWidget {
       );
     }
 
-    // State 3: CONNECTED (Video is Active)
     return RTCVideoView(
       remoteRenderer,
       objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
@@ -263,7 +251,7 @@ class CallingUI extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: backgroundColor.withOpacity(0.4),
+            color: backgroundColor.withValues(alpha: 0.4),
             blurRadius: 8,
             spreadRadius: 2,
           ),

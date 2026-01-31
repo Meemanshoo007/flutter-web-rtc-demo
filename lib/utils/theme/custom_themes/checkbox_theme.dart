@@ -19,7 +19,7 @@ class TCheckBoxTheme {
         return Colors.transparent;
       }
     }),
-  ); // CheckboxThemeData
+  );
   static CheckboxThemeData darkCheckboxTheme = CheckboxThemeData(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     checkColor: MaterialStateProperty.resolveWith((states) {
@@ -36,5 +36,5 @@ class TCheckBoxTheme {
         return Colors.transparent;
       }
     }),
-  ); // CheckboxThemeData
+  );
 }

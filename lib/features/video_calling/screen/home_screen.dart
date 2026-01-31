@@ -1,11 +1,4 @@
-import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import 'package:new_flutter_firebase_webrtc/common/app_icon/app_icon.dart';
 import 'package:new_flutter_firebase_webrtc/common/background/rive_background.dart';
 import 'package:new_flutter_firebase_webrtc/common/button/comp_fill_button.dart';
@@ -48,18 +41,15 @@ class HomeUI extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Icon
                     AppIconWidget(),
 
                     AppSpacing.vXl,
-                    // Title
                     Text(
                       'Start Video Call',
                       style: themeNotifier.themeData.textTheme.headlineLarge,
                     ),
 
                     AppSpacing.vXs,
-                    // Subtitle
                     Text(
                       'Create a new room or join an existing one',
                       style: themeNotifier.themeData.textTheme.bodySmall,
@@ -130,11 +120,6 @@ class HomeUI extends StatelessWidget {
                       width: double.infinity,
                       child: OutlinedButton(
                         onPressed: () async {
-                          // String? url = await uploadImageAndSaveToFirestore();
-                          // if (url != null) {
-                          //   print('Image uploaded successfully: $url');
-                          // }
-
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -160,104 +145,5 @@ class HomeUI extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<String?> uploadImageToCloudinary() async {
-    try {
-      // 1️⃣ Pick image
-      final picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-      if (image == null) return null;
-
-      Uint8List imageBytes = await image.readAsBytes();
-
-      // 2️⃣ Prepare multipart request
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('https://api.cloudinary.com/v1_1/dkgrvkurl/image/upload'),
-      );
-
-      // 3️⃣ Add required fields
-      request.fields['upload_preset'] = 'webrtc_demo';
-
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'file',
-          imageBytes,
-          filename: image.name,
-          contentType: http.MediaType(
-            'image',
-            'jpeg',
-          ), // from 'package:http_parser/http_parser.dart'
-        ),
-      );
-
-      // 4️⃣ Send request
-      var response = await request.send();
-
-      if (response.statusCode != 200 && response.statusCode != 201) {
-        print('Cloudinary upload failed: ${response.statusCode}');
-        return null;
-      }
-
-      var resStr = await response.stream.bytesToString();
-      var jsonRes = json.decode(resStr);
-
-      // 5️⃣ Get the uploaded image URL
-      String imageUrl = jsonRes['secure_url'];
-      print('Uploaded Image URL: $imageUrl');
-
-      return imageUrl;
-    } catch (e) {
-      print('Error uploading to Cloudinary: $e');
-      return null;
-    }
-  }
-
-  Future<String?> uploadImageAndSaveToFirestore() async {
-    try {
-      print('STEP 1: Function called');
-
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-      print('STEP 2: Image picked -> ${image?.name}');
-
-      if (image == null) {
-        print('STOP: User cancelled image picker');
-        return null;
-      }
-
-      Uint8List imageBytes = await image.readAsBytes();
-      print('STEP 3: Image bytes length -> ${imageBytes.length}');
-
-      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      final storageRef = FirebaseStorage.instance.ref('images/$fileName.jpg');
-
-      print('STEP 4: Uploading image...');
-      await storageRef.putData(
-        imageBytes,
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
-
-      print('STEP 5: Upload completed');
-
-      String downloadUrl = await storageRef.getDownloadURL();
-      print('STEP 6: Download URL -> $downloadUrl');
-
-      await FirebaseFirestore.instance.collection('images').add({
-        'imageUrl': downloadUrl,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      print('STEP 7: Firestore saved');
-
-      return downloadUrl;
-    } catch (e, st) {
-      print('ERROR: $e');
-      print(st);
-      return null;
-    }
   }
 }

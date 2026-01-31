@@ -1,20 +1,17 @@
-// lib/constants/app_spacing.dart (put in core package for monorepos)
 import 'package:flutter/material.dart';
 
 class AppSpacing {
   AppSpacing._();
 
-  // 8px grid system (common professional standard; change base to update all)
   static const double base = 8.0;
 
-  static const double xs = base * 0.5; // 4
-  static const double sm = base * 1; // 8
-  static const double md = base * 2; // 16
-  static const double lg = base * 3; // 24
-  static const double xl = base * 4; // 32
-  static const double xxl = base * 6; // 48
+  static const double xs = base * 0.5;
+  static const double sm = base * 1;
+  static const double md = base * 2;
+  static const double lg = base * 3;
+  static const double xl = base * 4;
+  static const double xxl = base * 6;
 
-  // Predefined const widgets
   static const SizedBox vXs = SizedBox(height: xs);
   static const SizedBox vSm = SizedBox(height: sm);
   static const SizedBox vMd = SizedBox(height: md);

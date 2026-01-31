@@ -19,7 +19,7 @@ samples, guidance on mobile development, and a full API reference.
 To Deploy: 
 
 flutter build web  
-**git add .**
+git add .
 git commit -m "adding turn and stun signalling urls"
 git push origin main   
 

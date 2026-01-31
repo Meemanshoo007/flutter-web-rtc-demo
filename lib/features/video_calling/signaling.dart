@@ -46,7 +46,7 @@ class Signaling {
       _roomId = roomRef.id;
 
       _localStream = await navigator.mediaDevices.getUserMedia({
-        'audio': true,
+        'audio_recorder': true,
         'video': {'facingMode': 'user'},
       });
 
@@ -139,7 +139,7 @@ class Signaling {
       }
 
       _localStream = await navigator.mediaDevices.getUserMedia({
-        'audio': true,
+        'audio_recorder': true,
         'video': {'facingMode': 'user'},
       });
       onLocalStream.call(_localStream!);

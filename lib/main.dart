@@ -1,17 +1,23 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:new_flutter_firebase_webrtc/common/background/rive_background.dart';
 import 'package:new_flutter_firebase_webrtc/utils/theme/controller/theme_controller.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/screen/video_call_page.dart';
 import 'package:provider/provider.dart';
 
+import 'features/audio_recorder/provider/audio_recorder_provider.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.web);
   runApp(
-    ChangeNotifierProvider(create: (_) => ThemeNotifier(), child: MyApp()),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: AudioRecorderProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeNotifier()),
+      ],
+      child: MyApp(),
+    ),
   );
 }
 

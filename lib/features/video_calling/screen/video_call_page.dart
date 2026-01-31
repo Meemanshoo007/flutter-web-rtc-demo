@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:new_flutter_firebase_webrtc/common/dialog/comp_dialog.dart';
-import 'package:new_flutter_firebase_webrtc/features/recording_playback_screen.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/screen/calling_screen.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/screen/home_screen.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/signaling.dart';
@@ -29,7 +28,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
   MediaRecorder? _mediaRecorder;
   bool _isRecording = false;
   // List<String> recordedSegments = []; // Stores the list of Blob URLs
-  Timer? _segmentTimer; // Timer to cut audio every 60 seconds
+  Timer? _segmentTimer; // Timer to cut audio_recorder every 60 seconds
   MediaStream? _activeStream; // Keep reference to stream for restarts
 
   bool isVideoOff = false;
@@ -123,7 +122,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
       // 1. Get the Audio Track from the main stream
       var audioTracks = stream.getAudioTracks();
       if (audioTracks.isEmpty) {
-        print("❌ No audio track found!");
+        print("❌ No audio_recorder track found!");
         return;
       }
       var audioTrack = audioTracks.first;
@@ -134,7 +133,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
         'audio_only_segment',
       );
 
-      // 3. Add the audio track to this new stream
+      // 3. Add the audio_recorder track to this new stream
       audioOnlyStream.addTrack(audioTrack);
 
       print(
@@ -145,10 +144,10 @@ class _VideoCallPageState extends State<VideoCallPage> {
       _mediaRecorder = MediaRecorder();
 
       // 5. Record the NEW stream (Not the camera stream)
-      // Now 'audio/webm' works perfectly because there is no video track!
+      // Now 'audio_recorder/webm' works perfectly because there is no video track!
       _mediaRecorder?.startWeb(
         audioOnlyStream,
-        mimeType: 'audio/webm;codecs=opus',
+        mimeType: 'audio_recorder/webm;codecs=opus',
       );
 
       setState(() {
@@ -440,7 +439,7 @@ class _VideoCallPageState extends State<VideoCallPage> {
       // 2️⃣ Prepare Firebase Storage Reference
       print("🔥 [Step 2] Preparing Storage Reference...");
       final String fileName = '${DateTime.now().millisecondsSinceEpoch}.webm';
-      final String fullPath = '$roomId/$role/$fileName';
+      final String fullPath = 'firebaseWebRTCDemo/$roomId/$role/$fileName';
 
       final Reference ref = FirebaseStorage.instance
           .ref()
@@ -452,8 +451,8 @@ class _VideoCallPageState extends State<VideoCallPage> {
 
       // 3️⃣ Upload bytes with Metadata
       print("🔥 [Step 3] Starting Upload...");
-      // Setting contentType is important for the browser to know it's audio when playing back
-      final metadata = SettableMetadata(contentType: 'audio/webm');
+      // Setting contentType is important for the browser to know it's audio_recorder when playing back
+      final metadata = SettableMetadata(contentType: 'audio_recorder/webm');
 
       // Use putData for raw bytes (standard for Web)
       final UploadTask uploadTask = ref.putData(bytes, metadata);
@@ -472,7 +471,9 @@ class _VideoCallPageState extends State<VideoCallPage> {
       // 4️⃣ Get and return the Download URL
       print("🔥 [Step 4] Getting Download URL...");
       final String downloadUrl = await snapshot.ref.getDownloadURL();
-      print('🔥 [SUCCESS] Uploaded audio segment to Firebase: $downloadUrl');
+      print(
+        '🔥 [SUCCESS] Uploaded audio_recorder segment to Firebase: $downloadUrl',
+      );
 
       return downloadUrl;
     } catch (e, stackTrace) {

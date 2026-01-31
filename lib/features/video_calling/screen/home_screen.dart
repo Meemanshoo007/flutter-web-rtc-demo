@@ -11,6 +11,7 @@ import 'package:new_flutter_firebase_webrtc/common/background/rive_background.da
 import 'package:new_flutter_firebase_webrtc/common/button/comp_fill_button.dart';
 import 'package:new_flutter_firebase_webrtc/common/button/comp_outline_button.dart';
 import 'package:new_flutter_firebase_webrtc/common/dialog/comp_dialog.dart';
+import 'package:new_flutter_firebase_webrtc/features/audio_recorder/screen/audio_recorder_page.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/dialog/room_created_dialog.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/dialog/join_room_dialog.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/signaling.dart';
@@ -23,7 +24,7 @@ class HomeUI extends StatelessWidget {
   final Signaling? signaling;
   final Function(String roomId) onCreateRoom;
   final Function(String roomId) onJoinRoom;
-  HomeUI({
+  const HomeUI({
     super.key,
     required this.signaling,
     required this.onCreateRoom,
@@ -67,7 +68,7 @@ class HomeUI extends StatelessWidget {
                     // Version
                     AppSpacing.vSm,
                     Text(
-                      'Version 1.1.5',
+                      'Version 1.1.7',
                       style: themeNotifier.themeData.textTheme.labelMedium,
                       textAlign: TextAlign.center,
                     ),
@@ -124,33 +125,33 @@ class HomeUI extends StatelessWidget {
                       title: 'Join Room',
                       icon: Icons.login_rounded,
                     ),
-                    // AppSpacing.vLg,
-                    // SizedBox(
-                    //   width: double.infinity,
-                    //   child: OutlinedButton(
-                    //     onPressed: () async {
-                    //       String? url = await uploadImageAndSaveToFirestore();
-                    //       if (url != null) {
-                    //         print('Image uploaded successfully: $url');
-                    //       }
-                    //
-                    //       // Navigator.push(
-                    //       //   context,
-                    //       //   MaterialPageRoute(
-                    //       //     builder: (context) => const TranscriptionTestPage(),
-                    //       //   ),
-                    //       // );
-                    //     },
-                    //     child: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.center,
-                    //       children: [
-                    //         const Icon(Icons.login_rounded, size: 24),
-                    //         AppSpacing.hSm,
-                    //         const Text('Test Transcription'),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
+                    AppSpacing.vLg,
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          // String? url = await uploadImageAndSaveToFirestore();
+                          // if (url != null) {
+                          //   print('Image uploaded successfully: $url');
+                          // }
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RecordingPage(),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.login_rounded, size: 24),
+                            AppSpacing.hSm,
+                            const Text('Test Transcription'),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

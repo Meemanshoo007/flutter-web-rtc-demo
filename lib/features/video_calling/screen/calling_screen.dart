@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:lottie/lottie.dart';
+import 'package:new_flutter_firebase_webrtc/common/background/rive_background.dart';
 import 'package:new_flutter_firebase_webrtc/common/dialog/comp_dialog.dart';
 import 'package:new_flutter_firebase_webrtc/features/video_calling/signaling.dart';
 
@@ -30,153 +32,219 @@ class CallingUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        // Remote video (full screen)
-        Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: const BoxDecoration(color: Colors.black),
-          child: RTCVideoView(remoteRenderer),
-        ),
-
-        // Local video (small overlay)
-        Positioned(
-          right: 20.0,
-          top: 50.0,
-          child: Container(
-            width: 120.0,
-            height: 160.0,
-            decoration: BoxDecoration(
-              color: Colors.black87,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white24, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: isVideoOff
-                ? const Center(
-                    child: Icon(
-                      Icons.videocam_off,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  )
-                : RTCVideoView(localRenderer, mirror: true),
+    return RiveBackground(
+      child: Stack(
+        children: <Widget>[
+          // Remote video (full screen)
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: _buildRemoteView(context), // <--- Use helper function
           ),
-        ),
 
-        // Room ID display
-        if (roomId != null)
+          // Local video (small overlay)
           Positioned(
+            right: 20.0,
             top: 50.0,
-            left: 20.0,
-            child: InkWell(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: roomId ?? ""));
+            child: Container(
+              width: 120.0,
+              height: 160.0,
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white24, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: isVideoOff
+                  ? const Center(
+                      child: Icon(
+                        Icons.videocam_off,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    )
+                  : RTCVideoView(localRenderer, mirror: true),
+            ),
+          ),
 
-                CompDialog.show(
-                  context: context,
-                  message: "Room ID copied successfully",
-                  dialogStyle: DialogStyle.success,
-                );
-              },
+          // Room ID display
+          if (roomId != null)
+            Positioned(
+              top: 50.0,
+              left: 20.0,
+              child: InkWell(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: roomId ?? ""));
+
+                  CompDialog.show(
+                    context: context,
+                    message: "Room ID copied successfully",
+                    dialogStyle: DialogStyle.success,
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.meeting_room,
+                        color: Colors.white70,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Room: ${(roomId ?? "").length > 7 ? roomId!.substring(0, 8) : roomId}...',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // Control buttons at bottom
+          Positioned(
+            bottom: 40.0,
+            left: 0,
+            right: 0,
+            child: Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
+                  horizontal: 24,
+                  vertical: 16,
                 ),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(50),
                   border: Border.all(color: Colors.white24),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.meeting_room,
-                      color: Colors.white70,
-                      size: 18,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    // Mute button
+                    _buildControlButton(
+                      icon: isMicMuted
+                          ? Icons.mic_off_rounded
+                          : Icons.mic_rounded,
+                      onPressed: onToggleMic,
+                      backgroundColor: Colors.white.withOpacity(0.2),
+                      iconColor: Colors.white,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Room: ${(roomId ?? "").length > 7 ? roomId!.substring(0, 8) : roomId}...',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+
+                    const SizedBox(width: 20),
+
+                    // End call button
+                    _buildControlButton(
+                      icon: Icons.call_end_rounded,
+                      onPressed: onHangUp,
+                      backgroundColor: Colors.red,
+                      iconColor: Colors.white,
+                      size: 60,
+                    ),
+
+                    const SizedBox(width: 20),
+
+                    // Camera switch button
+                    _buildControlButton(
+                      icon: isVideoOff
+                          ? Icons.videocam_off_rounded
+                          : Icons.videocam_rounded,
+                      onPressed: onToggleVideo,
+                      backgroundColor: isVideoOff
+                          ? Colors.red.withOpacity(0.8)
+                          : Colors.white.withOpacity(0.2),
+                      iconColor: Colors.white,
                     ),
                   ],
                 ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
 
-        // Control buttons at bottom
-        Positioned(
-          bottom: 40.0,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(50),
-                border: Border.all(color: Colors.white24),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  // Mute button
-                  _buildControlButton(
-                    icon: isMicMuted
-                        ? Icons.mic_off_rounded
-                        : Icons.mic_rounded,
-                    onPressed: onToggleMic,
-                    backgroundColor: Colors.white.withOpacity(0.2),
-                    iconColor: Colors.white,
-                  ),
-
-                  const SizedBox(width: 20),
-
-                  // End call button
-                  _buildControlButton(
-                    icon: Icons.call_end_rounded,
-                    onPressed: onHangUp,
-                    backgroundColor: Colors.red,
-                    iconColor: Colors.white,
-                    size: 60,
-                  ),
-
-                  const SizedBox(width: 20),
-
-                  // Camera switch button
-                  _buildControlButton(
-                    icon: isVideoOff
-                        ? Icons.videocam_off_rounded
-                        : Icons.videocam_rounded,
-                    onPressed: onToggleVideo,
-                    backgroundColor: isVideoOff
-                        ? Colors.red.withOpacity(0.8)
-                        : Colors.white.withOpacity(0.2),
-                    iconColor: Colors.white,
-                  ),
-                ],
-              ),
-            ),
+  // Helper function to handle the 3 states
+  Widget _buildRemoteView(BuildContext context) {
+    // State 1: WAITING (No one has joined yet)
+    if (remoteRenderer.srcObject == null) {
+      return Center(
+        child: Container(
+          alignment: Alignment.center,
+          width: 200,
+          height: 200,
+          child: Lottie.asset(
+            'assets/lottie/searchDoctor.json',
+            fit: BoxFit.contain,
           ),
         ),
-      ],
+      );
+    }
+
+    // State 2: CONNECTED (But Audio Only / Video Off)
+    // This prevents the black screen!
+    if (remoteRenderer.srcObject!.getVideoTracks().isEmpty) {
+      return Container(
+        color: Colors.grey[900], // Dark background
+        width: double.infinity,
+        height: double.infinity,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Big Avatar
+            Container(
+              padding: const EdgeInsets.all(30),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent.withOpacity(0.2),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blueAccent, width: 2),
+              ),
+              child: const Icon(
+                Icons.person_rounded,
+                size: 80,
+                color: Colors.blueAccent,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "User Connected (Audio Only)",
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // State 3: CONNECTED (Video is Active)
+    return RTCVideoView(
+      remoteRenderer,
+      objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
     );
   }
 

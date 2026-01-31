@@ -68,7 +68,7 @@ class HomeUI extends StatelessWidget {
                     // Version
                     AppSpacing.vSm,
                     Text(
-                      'Version 1.1.9',
+                      'Version 1.1.10',
                       style: themeNotifier.themeData.textTheme.labelMedium,
                       textAlign: TextAlign.center,
                     ),

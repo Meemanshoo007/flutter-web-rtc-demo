@@ -19,7 +19,7 @@ class AudioRecorderProvider extends ChangeNotifier {
   bool get isRecording => _isRecording;
   int get chunkIndex => _chunkIndex;
 
-  Future<void> startRecording() async {
+  Future<void> startRecording1() async {
     if (await _recorder.hasPermission()) {
       _isRecording = true;
       _chunkIndex = 0;
@@ -46,6 +46,51 @@ class AudioRecorderProvider extends ChangeNotifier {
         _uploadCurrentBuffer();
       });
 
+      notifyListeners();
+    }
+  }
+
+  Future<void> startRecording() async {
+    try {
+      debugPrint("Checking permissions...");
+      final hasPermission = await _recorder.hasPermission();
+
+      if (hasPermission) {
+        _isRecording = true;
+        _chunkIndex = 0;
+        _sessionId = DateTime.now().millisecondsSinceEpoch.toString();
+        _audioBuffer.clear();
+
+        debugPrint("Starting stream...");
+        final stream = await _recorder
+            .startStream(
+              const RecordConfig(
+                encoder: AudioEncoder.pcm16bits,
+                sampleRate: 44100,
+                numChannels: 1,
+              ),
+            )
+            .catchError((e) {
+              debugPrint("Stream error: $e");
+              throw e;
+            });
+
+        _onDataSubscription = stream.listen((data) {
+          _audioBuffer.addAll(data);
+        });
+
+        _timer = Timer.periodic(const Duration(seconds: 60), (t) {
+          _uploadCurrentBuffer();
+        });
+
+        notifyListeners();
+      } else {
+        debugPrint("User denied microphone access.");
+      }
+    } catch (e, stack) {
+      _isRecording = false;
+      debugPrint("Fatal error during startRecording: $e");
+      debugPrint("Stack: $stack");
       notifyListeners();
     }
   }
